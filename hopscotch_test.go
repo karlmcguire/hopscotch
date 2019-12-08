@@ -14,4 +14,6 @@ func TestMap(t *testing.T) {
 	fmt.Println(m)
 	m.Set(37, []byte("thirty seven"))
 	fmt.Println(m)
+
+	fmt.Println(string(m.Get(21)))
 }

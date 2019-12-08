@@ -46,6 +46,7 @@ func (m *Map) Set(key uint64, value []byte) bool {
 						if offset >= j {
 							continue
 						}
+
 						m.buckets[i].key = m.buckets[i-j+offset].key
 						m.buckets[i].value = m.buckets[i-j+offset].value
 
@@ -74,8 +75,11 @@ func (m *Map) Set(key uint64, value []byte) bool {
 }
 
 func (m *Map) Get(key uint64) []byte {
-	bucket := &m.buckets[key&m.mask]
-	return bucket.value
+	if bucket := m.lookup(key, key&m.mask); bucket == nil {
+		return nil
+	} else {
+		return bucket.value
+	}
 }
 
 func (m *Map) String() string {
@@ -91,9 +95,9 @@ func (m *Map) String() string {
 }
 
 func (m *Map) lookup(key, index uint64) *bucket {
-	for i := uint64(0); i < H && (index+i < m.mask+1); i++ {
+	for i := uint64(0); i < H && (index+i <= m.mask); i++ {
 		bucket := &m.buckets[index+i]
-		if bucket.bitmap&(1<<i) == 1 {
+		if bucket.bitmap&(1<<i) != 0 {
 			if bucket.key == key {
 				return bucket
 			}
